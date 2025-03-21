@@ -1,0 +1,115 @@
+﻿@{
+    ViewBag.Title = "Colaboradores";
+}
+
+<h2>Colaboradores</h2>
+
+<!-- Botón para cargar colaboradores -->
+<button type="button" class="btn btn-primary" id="btnCargarColaboradores">
+    Cargar colaboradores
+</button>
+
+<!-- Mostrar mensaje de error si hay alguno -->
+@if (ViewBag.ErrorMessage != null)
+{
+    <div style="color: red;">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
+<!-- Tabla vacía inicialmente -->
+<table class="table" id="tablaColaboradores" style="display: none;">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Dirección</th>
+            <th>Edad</th>
+            <th>Profesión</th>
+            <th>Estado Civil</th>
+            <th>Acciones</th> <!-- Nueva columna para el botón -->
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Aquí se llenarán los datos cuando se cargue la respuesta -->
+    </tbody>
+</table>
+
+<!-- Script para manejar la carga de colaboradores -->
+<!-- Vincular Bootstrap CSS -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+
+<!-- Vincular Bootstrap JS y jQuery (recomendado para ciertas interacciones) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.getElementById('btnCargarColaboradores').onclick = async function () {
+        try {
+            // Mostrar la tabla mientras se cargan los datos
+            const tabla = document.getElementById("tablaColaboradores");
+            tabla.style.display = "block";
+
+            // Hacer la petición GET a la API
+            const response = await fetch('/Colaborador/ObtenerColaboradores');
+
+            // Verifica la respuesta (puedes descomentar la siguiente línea para ver el objeto JSON en la consola)
+            const colaboradores = await response.json();
+            console.log(colaboradores);  // Esto te ayudará a ver la estructura exacta de los datos.
+
+            // Limpiar la tabla antes de agregar los nuevos datos
+            const tbody = tabla.querySelector('tbody');
+            tbody.innerHTML = '';
+
+            // Verificar si hay colaboradores
+            if (colaboradores.length > 0) {
+                colaboradores.forEach(colaborador => {
+                    // Crear una nueva fila por cada colaborador
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                    <td>${colaborador.IdColaborador}</td>
+                    <td>${colaborador.Nombre}</td>
+                    <td>${colaborador.Apellido}</td>
+                    <td>${colaborador.Direccion}</td>
+                    <td>${colaborador.Edad}</td>
+                    <td>${colaborador.Profesion}</td>
+                    <td>${colaborador.Estado_Civil}</td>
+                    <td><button class="btn btn-warning" onclick="mostrarNivelRiesgo(${colaborador.Edad})">NIVEL RIESGO</button></td> <!-- Botón para cada registro -->
+                `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="8">No hay colaboradores disponibles.</td>`;
+                tbody.appendChild(row);
+            }
+        } catch (error) {
+            console.error("Error al cargar colaboradores", error);
+            alert("Hubo un error al cargar los colaboradores.");
+        }
+    };
+
+    // Función para mostrar el mensaje de riesgo según la edad
+    function mostrarNivelRiesgo(edad) {
+        let mensaje = "";
+
+        switch (true) {
+            case (edad >= 18 && edad <= 25):
+                mensaje = "FUERA DE PELIGRO";
+                break;
+            case (edad >= 26 && edad <= 50):
+                mensaje = "TENGA CUIDADO, TOME TODAS LAS MEDIDAS DE PREVENCION";
+                break;
+            case (edad >= 51):
+                mensaje = "POR FAVOR QUEDARSE EN CASA";
+                break;
+            default:
+                mensaje = "Edad no válida.";
+        }
+
+
+        // Mostrar el mensaje
+        alert(mensaje);
+    }
+</script>
