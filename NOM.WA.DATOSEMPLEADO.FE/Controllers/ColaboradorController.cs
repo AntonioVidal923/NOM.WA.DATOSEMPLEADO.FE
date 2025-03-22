@@ -6,13 +6,14 @@ using System.Web.Mvc;
 using System.Net.Http;
 using Newtonsoft.Json;
 using System.Net;
+using System.Configuration;
 
 namespace NOM.WA.DATOSEMPLEADO.FE.Controllers
 {
     public class ColaboradorController : Controller
     {
         // GET: Colaborador
-        private readonly string apiUrl = "https://localhost:7052/api/Colaborador";
+        private readonly string apiUrl = ConfigurationManager.AppSettings["ApiUrl"];
 
         // GET: Colaborador
         public ActionResult Index()
